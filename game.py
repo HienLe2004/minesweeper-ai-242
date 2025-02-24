@@ -60,11 +60,11 @@ class Game:
                     grid_data = self.grid.get_grid_data()
                     for row in grid_data:
                         print(row)
-                    if self.grid.first_solve:
-                        self.grid.first_solve = False
-                        self.grid.original_grid_data = grid_data
-                    else:
-                        grid_data = self.grid.original_grid_data
+                    # if self.grid.first_solve:
+                    #     self.grid.first_solve = False
+                    #     self.grid.original_grid_data = grid_data
+                    # else:
+                    #     grid_data = self.grid.original_grid_data
                     start_time = time.time()  # Lấy thời gian bắt đầu
                     tracemalloc.start() # Bắt đầu theo dõi
                     result = BFS_Search(grid_data)
@@ -87,11 +87,11 @@ class Game:
                     grid_data = self.grid.get_grid_data()
                     for row in grid_data:
                         print(row)
-                    if self.grid.first_solve:
-                        self.grid.first_solve = False
-                        self.grid.original_grid_data = grid_data
-                    else:
-                        grid_data = self.grid.original_grid_data
+                    # if self.grid.first_solve:
+                    #     self.grid.first_solve = False
+                    #     self.grid.original_grid_data = grid_data
+                    # else:
+                    #     grid_data = self.grid.original_grid_data
                     start_time = time.time()  # Lấy thời gian bắt đầu
                     tracemalloc.start() # Bắt đầu theo dõi
                     result = Heuristic_Search(grid_data, self.grid)
@@ -109,6 +109,11 @@ class Game:
                         print(row)
                 elif event.ui_element == self.input_button:
                     print(self.grid_input.get_text())
+                    self.is_solved = False
+                    if self.grid_input.get_text() in ['','[]']:
+                        res = [[-1] * self.COL] * self.ROW
+                        self.grid.set_grid_data(res)
+                        return
                     res = []
                     rows = self.grid_input.get_text().split(',')
                     for r in rows:
