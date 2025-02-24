@@ -6,6 +6,7 @@ from blindSearch import BFS_Search
 from heuristicSearch import Heuristic_Search 
 import time
 import tracemalloc
+import ast
 
 class Game:
     def __init__(self, row, col):
@@ -36,6 +37,16 @@ class Game:
         self.heuristic_button = pygame_gui.elements.UIButton(relative_rect=heuristic_btn_rect, text="Heuristic", 
                                                        manager=self.manager,
                                                        object_id="#heuristic_btn")
+        input_rect_surf = pygame.Surface((100,50))
+        input_rect = input_rect_surf.get_rect(topleft=(self.MAIN_SCREEN_WIDTH - self.SCREEN_WIDTH_OFFSET + 10, 110))
+        self.grid_input = pygame_gui.elements.UITextEntryLine(relative_rect=input_rect,
+                                                             manager=self.manager, object_id="#grid_input",
+                                                             initial_text='[]')
+        input_btn_surf = pygame.Surface((100,50))
+        input_btn_rect = input_btn_surf.get_rect(topleft=(self.MAIN_SCREEN_WIDTH - self.SCREEN_WIDTH_OFFSET + 110, 110))
+        self.input_button = pygame_gui.elements.UIButton(relative_rect=input_btn_rect, text="input", 
+                                                       manager=self.manager,
+                                                       object_id="#input_btn")
     def input(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -96,6 +107,22 @@ class Game:
                     print("Output grid:")
                     for row in result:
                         print(row)
+                elif event.ui_element == self.input_button:
+                    print(self.grid_input.get_text())
+                    res = []
+                    rows = self.grid_input.get_text().split(',')
+                    for r in rows:
+                        int_cells = []
+                        for c in r:
+                            if c == '-':
+                                int_cells.append(-1)
+                            else:
+                                int_cells.append(int(c))
+                        res.append(int_cells)
+                    print(res)
+                    self.grid.set_grid_data(res)
+                    
+
 
     def draw(self):
         self.screen.fill((0,0,0))
@@ -108,9 +135,9 @@ class Game:
         text_1 = font.render(f"Execution time: {self.execution_time:.4f} s", True, (250,250,250))
         text_2 = font.render(f"Current cap: {self.current_capacity / 1024:.2f} KB", True, (250,250,250))
         text_3 = font.render(f"Peak cap: {self.peak_capacity / 1024:.2f} KB", True, (250,250,250))
-        text_rect_1 = text_1.get_frect(topleft=(self.MAIN_SCREEN_WIDTH - self.SCREEN_WIDTH_OFFSET + 10, 120))
-        text_rect_2 = text_2.get_frect(topleft=(self.MAIN_SCREEN_WIDTH - self.SCREEN_WIDTH_OFFSET + 10, 150))
-        text_rect_3 = text_3.get_frect(topleft=(self.MAIN_SCREEN_WIDTH - self.SCREEN_WIDTH_OFFSET + 10, 180))
+        text_rect_1 = text_1.get_frect(topleft=(self.MAIN_SCREEN_WIDTH - self.SCREEN_WIDTH_OFFSET + 10, 200))
+        text_rect_2 = text_2.get_frect(topleft=(self.MAIN_SCREEN_WIDTH - self.SCREEN_WIDTH_OFFSET + 10, 230))
+        text_rect_3 = text_3.get_frect(topleft=(self.MAIN_SCREEN_WIDTH - self.SCREEN_WIDTH_OFFSET + 10, 260))
         self.screen.blit(text_1, text_rect_1)
         self.screen.blit(text_2, text_rect_2)
         self.screen.blit(text_3, text_rect_3)

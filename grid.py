@@ -22,7 +22,7 @@ class Grid:
             self.cells.append(cells_in_row)
 
     def change_cell(self, grid_position, forward):
-        print(f'Change cell at {grid_position}')
+        # print(f'Change cell at {grid_position}')
         cell = self.cells[grid_position[0]][grid_position[1]]
         if forward:
             if cell.type == Cell_Type.EIGHT:
