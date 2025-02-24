@@ -123,8 +123,10 @@ class Game:
                                 int_cells.append(-1)
                             else:
                                 int_cells.append(int(c))
+                        print(len(int_cells))
                         res.append(int_cells)
-                    print(res)
+                    print(len(res))
+                    # print(res)
                     self.grid.set_grid_data(res)
                     
 
