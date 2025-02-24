@@ -2,6 +2,7 @@ import math
 from itertools import combinations
 from cell import Cell_Type
 import time
+import setting
 
 delay_time = 1
 
@@ -195,11 +196,13 @@ def generate_bomb_cases(board, r, c, remain_bomb):
 
     return new_boards
 
-def Heuristic_Search(board, grid = None):
+def Heuristic_Search(board, game = None):
     #Đầu tiên quét sơ board và giải quyết dựa trên các luật cơ bản của trò chơi
+    setting.current_state += 1
     result = solve_simple_minesweeper(board)
-    if grid is not None:
-        grid.set_grid_data(result)
+    if game is not None:
+        game.grid.set_grid_data(result)
+        game.draw_every_states()
     if check_goal_board(result): return result # Nếu thỏa mãn goal thì trả về đáp án ngay lập tức
     else:
         better_decision = heuristic(result)
@@ -208,11 +211,8 @@ def Heuristic_Search(board, grid = None):
         bomb_cases = generate_bomb_cases(result,r,c,remain_bomb)
         for bomb_case in bomb_cases:
             if check_valid_board(bomb_case):
-                recursive_result = Heuristic_Search(bomb_case,grid)
+                recursive_result = Heuristic_Search(bomb_case,game)
                 if recursive_result is not None:
-                    if grid is not None:
-                        grid.set_grid_data(board)
-                        time.sleep(0.2)
                     return recursive_result
                 
     return None

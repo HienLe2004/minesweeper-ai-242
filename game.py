@@ -1,12 +1,13 @@
 from setting import *
+import setting
 import pygame_gui
 from cell import *
 from grid import *
-from blindSearch import BFS_Search
+from checkbox import *
+from blindSearch import BFS_Search, DFS_Search
 from heuristicSearch import Heuristic_Search 
 import time
 import tracemalloc
-import ast
 
 class Game:
     def __init__(self, row, col):
@@ -47,6 +48,8 @@ class Game:
         self.input_button = pygame_gui.elements.UIButton(relative_rect=input_btn_rect, text="input", 
                                                        manager=self.manager,
                                                        object_id="#input_btn")
+        self.checkbox = Checkbox(self.screen, (self.MAIN_SCREEN_WIDTH - self.SCREEN_WIDTH_OFFSET + 20, 180), (20,20))
+
     def input(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -67,7 +70,8 @@ class Game:
                     #     grid_data = self.grid.original_grid_data
                     start_time = time.time()  # Lấy thời gian bắt đầu
                     tracemalloc.start() # Bắt đầu theo dõi
-                    result = BFS_Search(grid_data)
+                    # result = DFS_Search(grid_data)
+                    result = BFS_Search(grid_data,self)
                     self.grid.set_grid_data(result)
                     # computer_result = solve_minesweeper(challenge_board)
                     current, peak = tracemalloc.get_traced_memory() # Lấy thông tin bộ nhớ
@@ -94,7 +98,10 @@ class Game:
                     #     grid_data = self.grid.original_grid_data
                     start_time = time.time()  # Lấy thời gian bắt đầu
                     tracemalloc.start() # Bắt đầu theo dõi
-                    result = Heuristic_Search(grid_data, self.grid)
+                    if self.checkbox.is_checked:
+                        result = Heuristic_Search(grid_data, self)
+                    else:
+                        result = Heuristic_Search(grid_data)
                     self.grid.set_grid_data(result)
                     # computer_result = solve_minesweeper(challenge_board)
                     current, peak = tracemalloc.get_traced_memory() # Lấy thông tin bộ nhớ
@@ -108,7 +115,6 @@ class Game:
                     for row in result:
                         print(row)
                 elif event.ui_element == self.input_button:
-                    print(self.grid_input.get_text())
                     self.is_solved = False
                     if self.grid_input.get_text() in ['','[]']:
                         res = [[-1] * self.COL] * self.ROW
@@ -123,19 +129,36 @@ class Game:
                                 int_cells.append(-1)
                             else:
                                 int_cells.append(int(c))
-                        print(len(int_cells))
                         res.append(int_cells)
-                    print(len(res))
-                    # print(res)
+                    print(res)
                     self.grid.set_grid_data(res)
+                    setting.current_state = 0
                     
-
-
     def draw(self):
         self.screen.fill((0,0,0))
         self.grid.draw()
         if self.is_solved:
             self.show_result()
+        self.checkbox.draw()
+        #show current state
+        font = pygame.font.Font('fonts/Electrolize-Regular.ttf', 16)
+        text = font.render(f"State #{setting.current_state}", True, (250,250,250))
+        text_rect = text.get_frect(bottomleft=(self.MAIN_SCREEN_WIDTH - self.SCREEN_WIDTH_OFFSET + 10, 700))
+        self.screen.blit(text, text_rect)
+
+    def draw_every_states(self):
+
+        self.screen.fill((0,0,0))
+        self.grid.draw()
+        if self.is_solved:
+            self.show_result()
+        #show current state
+        font = pygame.font.Font('fonts/Electrolize-Regular.ttf', 16)
+        text = font.render(f"State #{setting.current_state}", True, (250,250,250))
+        text_rect = text.get_frect(bottomleft=(self.MAIN_SCREEN_WIDTH - self.SCREEN_WIDTH_OFFSET + 10, 700))
+        self.screen.blit(text, text_rect)
+        pygame.display.update()
+        # time.sleep(1)
 
     def show_result(self):
         font = pygame.font.Font('fonts/Electrolize-Regular.ttf', 16)
@@ -152,6 +175,7 @@ class Game:
     def update(self):
         self.input()
         self.grid.update()
+        self.checkbox.update()
 
     def run(self):
         while self.running:

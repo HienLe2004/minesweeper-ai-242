@@ -1,7 +1,7 @@
 from queue import Queue
 from cell import Cell_Type
 import copy
-
+import setting
 
 #result_board, challenge_board = generate_minesweeper_challenge(size)
 #print(result_board)
@@ -77,7 +77,7 @@ def copy_board(board, row, col):
 
     return new_board
 
-def BFS_Search(board):
+def BFS_Search(board, game=None):
     q = Queue()
     visited = set()
 
@@ -85,6 +85,10 @@ def BFS_Search(board):
     visited.add(tuple(map(tuple, board)))
     while(not q.empty()):
         temp = q.get()
+        if game is not None:
+            game.grid.set_grid_data(temp)
+            game.draw_every_states()
+        setting.current_state += 1
         if goal_mine_Result(temp): return temp
         for row in range(len(temp)):
             for col in range(len(temp[row])):
@@ -96,7 +100,7 @@ def BFS_Search(board):
                         visited.add(child_state)
     return None
 
-def DFS_Search(board):
+def DFS_Search(board, game = None):
     stack = []
     visited = set()
     
@@ -105,7 +109,11 @@ def DFS_Search(board):
 
     while stack:
         temp = stack.pop()
-        print(temp)
+        if game is not None:
+            game.grid.set_grid_data(temp)
+            game.draw_every_states()
+        setting.current_state += 1
+        # print(temp)
         if goal_mine_Result(temp):
             return temp
         for row in range(len(temp)):
@@ -113,7 +121,7 @@ def DFS_Search(board):
                 if temp[row][col] == Cell_Type.HIDE.value:
                     child_board = copy_board(temp, row, col)
                     child_state = tuple(map(tuple, child_board))
-                    if child_state not in visited and check_valid_board(child_board,15):
+                    if child_state not in visited and check_valid_board(child_board):
                         stack.append(child_board)
                         visited.add(child_state)
 
