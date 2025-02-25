@@ -97,20 +97,20 @@ class Game:
                     # else:
                     #     grid_data = self.grid.original_grid_data
                     start_time = time.time()  # Lấy thời gian bắt đầu
-                    tracemalloc.start() # Bắt đầu theo dõi
+        #            tracemalloc.start() # Bắt đầu theo dõi
                     if self.checkbox.is_checked:
                         result = Heuristic_Search(grid_data, self)
                     else:
                         result = Heuristic_Search(grid_data)
                     self.grid.set_grid_data(result)
                     # computer_result = solve_minesweeper(challenge_board)
-                    current, peak = tracemalloc.get_traced_memory() # Lấy thông tin bộ nhớ
+        #            current, peak = tracemalloc.get_traced_memory() # Lấy thông tin bộ nhớ
                     end_time = time.time()  # Lấy thời gian kết thúc
                     execution_time = end_time - start_time  # Thời gian thực thi
                     self.is_solved = True
                     self.execution_time = execution_time
-                    self.current_capacity = current
-                    self.peak_capacity = peak
+                    self.current_capacity = 0 #current
+                    self.peak_capacity = 0 #peak
                     print("Output grid:")
                     for row in result:
                         print(row)

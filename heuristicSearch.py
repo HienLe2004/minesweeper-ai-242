@@ -85,40 +85,37 @@ def check_goal_board(board):
 
 def heuristic(board):
     rows, cols = len(board), len(board[0])
-    def get_neighbor(r, c):
-        direction= [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
-        neighbors = []
-        for dr, dc in direction:
-            nr, nc = r + dr, c + dc
-            if 0 <= nr < rows and 0 <= nc < cols:
-                neighbors.append((nr, nc))
-        return neighbors
     
-    guide_ceils = []
-    #Lấy ra tổ hợp (row, col, heuristic_value) của các ô chỉ dẫn
+    def get_neighbor(r, c):
+        direction = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
+        return [(r + dr, c + dc) for dr, dc in direction if 0 <= r + dr < rows and 0 <= c + dc < cols]
+    
+    min_heuristic = float('inf')
+    best_cell = None
+    
     for r in range(rows):
-            for c in range(cols):
-                if 0 <= board[r][c] <= 8:
-                    neighbors = get_neighbor(r,c)
-                    unOpened= [(nr,nc) for nr, nc in neighbors if board[nr][nc] == Cell_Type.HIDE.value]
-                    bombs = [(nc,nr) for nr, nc in neighbors if board[nr][nc] == Cell_Type.MINE.value]
-                    
-                    remain_bombs = board[r][c] - len(bombs)
-                    if remain_bombs < 0 or len(unOpened) < 0:
-                        continue  # Bỏ qua trường hợp không hợp lệ
-
-                    heuristic_value = math.comb(remain_bombs, len(unOpened)) #Lấy tổ hợp của số ô chưa mở chập số bom còn lại chưa khám phá
-                    guide_ceils.append((r,c, remain_bombs, heuristic_value))
-
-    # Sắp xếp guide_ceils theo giá trị heuristic_value
-    if guide_ceils:
-        guide_ceils = sorted(guide_ceils, key=lambda x: x[3])
-        return guide_ceils[0]
-    else:
-        return None  # Trả về None nếu không có ô hợp lệ
+        for c in range(cols):
+            if 0 <= board[r][c] <= 8:
+                neighbors = get_neighbor(r, c)
+                unOpened = [(nr, nc) for nr, nc in neighbors if board[nr][nc] == Cell_Type.HIDE.value]
+                bombs = [(nr, nc) for nr, nc in neighbors if board[nr][nc] == Cell_Type.MINE.value]
+                
+                remain_bombs = board[r][c] - len(bombs)
+                if remain_bombs < 0 or len(unOpened) <= 0:
+                    continue
+                
+                heuristic_value = math.comb(remain_bombs, len(unOpened))
+                
+                if heuristic_value < min_heuristic:
+                    min_heuristic = heuristic_value
+                    best_cell = (r, c, remain_bombs, heuristic_value)
+    
+    return best_cell
 
 def solve_simple_minesweeper(board):
     rows, cols = len(board), len(board[0])
+    flag = False
+
     def get_neighbor(r, c):
         direction= [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
         neighbors = []
@@ -130,12 +127,21 @@ def solve_simple_minesweeper(board):
 
     def apply_logic():
         changed = False
+        flag = False
         for r in range(rows):
             for c in range(cols):
                 if 0 <= board[r][c] <= 8:
                     neighbors = get_neighbor(r,c)
                     unOpened= [(nr,nc) for nr, nc in neighbors if board[nr][nc] == Cell_Type.HIDE.value]
                     bombs = [(nc,nr) for nr, nc in neighbors if board[nr][nc] == Cell_Type.MINE.value]
+
+                    if len(bombs) > board[r][c]:
+                        flag = True
+                        return False, flag   # Kiểm tra nếu số bom đã biết lớn hơn số hiển thị
+
+                    if len(unOpened) + len(bombs) < board[r][c]:
+                        flag = True
+                        return False, flag # Kiểm tra nếu tổng số ô chưa mở + số bom đã biết < số cần thiết
 
                     # Nếu ô đó là số 0 thì toàn bộ ô chưa mở xung quanh nó là an toàn
                     if board[r][c] == 0:
@@ -155,9 +161,14 @@ def solve_simple_minesweeper(board):
                             board[nr][nc] = Cell_Type.EMPTY.value
                             changed = True
 
-        return changed
+        return changed, flag
 
-    while apply_logic():
+    while True:
+        changed, flag = apply_logic()
+        if(flag): return False
+        else:
+            if changed: pass
+            else: break
         pass
 
     return board
@@ -203,6 +214,9 @@ def Heuristic_Search(board, game = None):
     if game is not None:
         game.grid.set_grid_data(result)
         game.draw_every_states()
+    
+    if result is False: return None
+
     if check_goal_board(result): return result # Nếu thỏa mãn goal thì trả về đáp án ngay lập tức
     else:
         better_decision = heuristic(result)
@@ -210,9 +224,8 @@ def Heuristic_Search(board, game = None):
 
         bomb_cases = generate_bomb_cases(result,r,c,remain_bomb)
         for bomb_case in bomb_cases:
-            if check_valid_board(bomb_case):
-                recursive_result = Heuristic_Search(bomb_case,game)
-                if recursive_result is not None:
-                    return recursive_result
+            recursive_result = Heuristic_Search(bomb_case,game)
+            if recursive_result is not None:
+                return recursive_result
                 
     return None
