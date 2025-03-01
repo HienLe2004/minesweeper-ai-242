@@ -63,17 +63,10 @@ class Game:
                     grid_data = self.grid.get_grid_data()
                     for row in grid_data:
                         print(row)
-                    # if self.grid.first_solve:
-                    #     self.grid.first_solve = False
-                    #     self.grid.original_grid_data = grid_data
-                    # else:
-                    #     grid_data = self.grid.original_grid_data
                     start_time = time.time()  # Lấy thời gian bắt đầu
                     tracemalloc.start() # Bắt đầu theo dõi
-                    # result = DFS_Search(grid_data)
                     result = BFS_Search(grid_data,self)
                     self.grid.set_grid_data(result)
-                    # computer_result = solve_minesweeper(challenge_board)
                     current, peak = tracemalloc.get_traced_memory() # Lấy thông tin bộ nhớ
                     end_time = time.time()  # Lấy thời gian kết thúc
                     execution_time = end_time - start_time  # Thời gian thực thi
@@ -91,11 +84,6 @@ class Game:
                     grid_data = self.grid.get_grid_data()
                     for row in grid_data:
                         print(row)
-                    # if self.grid.first_solve:
-                    #     self.grid.first_solve = False
-                    #     self.grid.original_grid_data = grid_data
-                    # else:
-                    #     grid_data = self.grid.original_grid_data
                     start_time = time.time()  # Lấy thời gian bắt đầu
                     tracemalloc.start() # Bắt đầu theo dõi
                     if self.checkbox.is_checked:
@@ -103,7 +91,6 @@ class Game:
                     else:
                         result = Heuristic_Search(grid_data)
                     self.grid.set_grid_data(result)
-                    # computer_result = solve_minesweeper(challenge_board)
                     current, peak = tracemalloc.get_traced_memory() # Lấy thông tin bộ nhớ
                     end_time = time.time()  # Lấy thời gian kết thúc
                     execution_time = end_time - start_time  # Thời gian thực thi
@@ -130,7 +117,6 @@ class Game:
                             else:
                                 int_cells.append(int(c))
                         res.append(int_cells)
-                    print(res)
                     self.grid.set_grid_data(res)
                     setting.current_state = 0
                     
@@ -158,7 +144,6 @@ class Game:
         text_rect = text.get_frect(bottomleft=(self.MAIN_SCREEN_WIDTH - self.SCREEN_WIDTH_OFFSET + 10, 700))
         self.screen.blit(text, text_rect)
         pygame.display.update()
-        # time.sleep(1)
 
     def show_result(self):
         font = pygame.font.Font('fonts/Electrolize-Regular.ttf', 16)
